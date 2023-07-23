@@ -1,0 +1,20 @@
+scanimage -d pixma:04A9190D --format png --source 'Transparency Unit' --resolution 2400 --mode 'Color' -l 88 -t 36 -x 40 -y 194 -p -b --button-controlled
+
+for i in out*.png; for j in 1 2 3 4; set file (printf 'foto_%03d.png' (echo '('(echo $i | grep -Eo '[0-9]+')'-1)*4+'$j | bc)); convert -verbose $i -crop 3280x2160+232+(echo '204+('$j'-1)*5280'|bc) +repage -gamma 2.2 -normalize $file; end; end;
+
+
+Size
+3280 x 2160
+
+Positions:
+
+232 x   204
+
+232 x  5484
+
+232 x 10764
+
+232 x 16044
+
+
+

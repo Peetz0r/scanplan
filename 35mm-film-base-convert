@@ -1,0 +1,5 @@
+#!/bin/fish
+
+for i in *.tiff *.tif;
+  convert -verbose $i -resize 1x1 txt:- | grep -Eo 'srgb\([0-9.,%]+\)' | tee (basename -s .tif $i).txt;
+end;

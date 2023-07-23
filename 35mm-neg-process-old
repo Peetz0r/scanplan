@@ -1,0 +1,31 @@
+#!/bin/fish
+
+for i in out*.png;
+  for j in 0 1;
+    for k in 0 1 2 3;
+      set x (echo '80 + 3708 * ' $j | bc);
+      set y (echo '66 + 3600 * ' $k | bc)
+      set file (printf 'foto_%03d' (echo '1 + ('(echo $i | grep -Eo '[0-9]+')'-1)*8 + 4*'$j' + '$k | bc));
+
+      echo convert -verbose $i -channel RGB -crop 2224x3600+$x+$y -auto-level -rotate -90 +repage $file-v4-A.png;
+      echo convert -verbose $i -channel RGB -crop 2224x3600+$x+$y -auto-level -rotate -90 +repage -negate $file-v4-B.png;
+
+      #~ for l in 1.0 1.5 2.0 2.5;
+      #~ for l in 5 10 15 20 30 40;
+      #~ for f in 1.0 1.5 2.0 2.5;
+        #~ for c in 1 2.5 5 7.5 10;
+        #~ set f 1;
+        #~ set c 2;
+          #~ echo convert -verbose $i -channel RGB -crop 2224x3600+$x+$y -contrast-stretch $l%x1% -rotate -90 +repage -fuzz $f% -define trim:percent-background=0% -trim +repage -negate -contrast-stretch $c%x1% $file-v3-C-level-$l-fuzz-$f-contrast-$c.png;
+        #~ end;
+      #~ end;
+
+      #~ convert -verbose $i -crop 2224x3600+$x+$y -rotate -90 +repage -fuzz 1% -define trim:percent-background=0% -trim +repage -negate -trim +repage +fuzz -channel RGB -contrast-stretch 2%x1% $file-v3-stretch-02.png;
+
+      #~ convert -verbose $i -crop 2224x3600+$x+$y -rotate -90 +repage -fuzz 1% -define trim:percent-background=0% -trim +repage -negate -trim +repage +fuzz -channel RGB -contrast-stretch 5%x1% $file-v3-stretch-05.png;
+
+
+      #~ echo $i $j $k $file $x $y;
+    end;
+  end;
+end | parallel --bar;

@@ -1,0 +1,55 @@
+#!/bin/env python3
+
+import wand.image, glob
+
+num_foto = 0
+
+film = wand.image.Image(filename=f'canvas:{open("film-base").read()}')
+print(f'Film base: {film[0,0]}')
+outlist = glob.glob('out*.tif')
+outlist.sort()
+for f in outlist:
+  print(f)
+
+  if num_foto >= 6: # debug
+    break # debug
+
+
+  scan = wand.image.Image(filename=f)
+  scan.negate()
+  film.resize(scan.size[0], scan.size[1])
+  scan.composite(film, operator='color_burn')
+  scan.rotate(-90)
+
+  for row in [1, 0]:
+    print(f, 'row', row+1)
+    with scan[0:scan.size[0], 3840-(row*3712):scan.size[1]-62-(row*3712)] as strip:
+    # ~ with scan[0:scan.size[0], 3840-(row*3712)+512:scan.size[1]-62-(row*3712)-512] as strip:
+      strip.save(filename=f'{f.split(".")[0]}-row{row+1}.tiff')
+
+      offset = 0
+      for frame in range(6):
+        if frame > 0 and offset == 0:
+          break
+        for pos in range(int((strip.size[0]-offset-3424)/4)):
+          with strip[offset+4*pos:offset+4*pos+16, 0:strip.size[1]] as bar:
+            bar.resize(1, 1)
+            light = bar[0,0].hsl()[2]
+            if light > 0.5:
+              num_foto += 1
+              realpos = (pos+4) * 4
+              with strip[offset+realpos:offset+realpos+3424, 0:strip.size[1]] as foto:
+              # ~ with strip[offset+realpos:offset+realpos+3400, 0:strip.size[1]] as foto:
+                foto.normalize()
+                foto.save(filename=f'foto-{num_foto:03d}b-{light_threshold:.2f}-meer-auto.tiff')
+                # ~ foto2.gamma(0.50, channel='red')
+                # ~ foto2.gamma(0.42, channel='green')
+                # ~ foto2.gamma(0.40, channel='blue')
+                # ~ foto2.normalize()
+                # ~ foto2.save(filename=f'foto-{num_foto:03d}c.tiff')
+                print(f'foto {num_foto} {f} row {row+1} foto {frame+1} [{offset+realpos} - {offset+realpos+3424}]')
+              offset += realpos + 3424 + 32
+              break
+    # ~ break # debug
+  scan.close()
+film.close()

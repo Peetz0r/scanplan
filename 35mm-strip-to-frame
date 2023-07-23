@@ -1,0 +1,44 @@
+#!/bin/env python3
+
+import wand.image, os, glob
+
+film_type = os.path.basename(os.path.realpath('film-base')).split('.')[0]
+color = not os.path.exists('bw')
+
+print(f'Film: {film_type} ({"Color" if color else "B/W"})')
+
+striplist = glob.glob('strip*.tiff')
+striplist.sort()
+for f in striplist:
+  print(f)
+
+  strip = wand.image.Image(filename=f)
+
+  offset = 0
+  for frame in range(6):
+    if frame > 0 and offset == 0:
+      break
+    for pos in range(int((strip.size[0]-offset-3424)/4)):
+      with strip[offset+4*pos:offset+4*pos+16, 0:strip.size[1]] as bar:
+        bar.resize(1, 1)
+        light = bar[0,0].hsl()[2]
+        if light > 0.1:
+          filename = f'frame-{f.split(".")[0]}-{frame+1}.tiff'
+          realpos = 4*pos + 32
+          with strip[offset+realpos:offset+realpos+3424, 0:strip.size[1]] as foto:
+            if os.path.exists('pano'):
+              foto.crop(top=512, bottom=-512, right=-48)
+            foto.normalize()
+            foto.save(filename = filename)
+            if color:
+              foto.gamma(0.50, channel='red')
+              foto.gamma(0.42, channel='green')
+              foto.gamma(0.40, channel='blue')
+            else:
+              foto.auto_gamma()
+              foto.transform_colorspace('gray')
+            foto.save(filename = f'frame-{f.split(".")[0]}-{frame+1}-gamma.tiff')
+            print(f'{filename} [{offset} - {offset+realpos} - {offset+realpos+3424}]')
+          offset += realpos + 3424 + 64
+          break
+  strip.close()

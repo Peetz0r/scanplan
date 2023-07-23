@@ -1,0 +1,27 @@
+#!/bin/env python3
+
+import wand.image, os, glob
+
+film_type = os.path.basename(os.path.realpath('film-base')).split('.')[0]
+color = not os.path.exists('bw')
+film = wand.image.Image(filename=f'canvas:{open("film-base").read()}')
+
+print(f'Film: {film_type} ({"Color" if color else "B/W"})')
+print(f'Film base: {film[0,0]}')
+
+outlist = glob.glob('out*.tif')
+outlist.sort()
+for f in outlist:
+  print(f)
+
+  scan = wand.image.Image(filename=f)
+  scan.negate()
+  film.resize(scan.size[0], scan.size[1])
+  scan.composite(film, operator='color_burn')
+  scan.rotate(-90)
+
+  filename = f'out-{f.split(".")[0]}-pos.tiff'
+  scan.save(filename=filename)
+
+  scan.close()
+film.close()
