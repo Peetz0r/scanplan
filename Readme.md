@@ -31,3 +31,8 @@ I have scanned around 60 rolls of film and most of it is usable, but a lot of th
 However, since I always keep the out*.tiff files from scanimage around, I can declare the "scanning" finished.
 
 I have also scanned around 240 slides with the oneliners in `dias.txt` ('dia' is Dutch for 'slide') but since those used much simpler hardcoded cropping and didn't need any color correction (only basic exposure and gamma corrections) I regard those as a seperate (and finished) project. But I included my notes anyway.
+
+
+![Example](example.jpg)
+
+This is a picture of the scanning process. The picture itself is taken with a Yashica FX-3, Tokina RMC 25-50mm F/4.0 zoom lens (probably at 50mm and F/4.0), on Fuji C200 film, and has also been trough this same process before ending up here. The gamma correction used was (0.50, 0.42, 0.40) which will probably change at some point.
